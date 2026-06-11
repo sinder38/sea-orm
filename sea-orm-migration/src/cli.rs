@@ -5,10 +5,11 @@ use dotenvy::dotenv;
 use std::process::exit;
 
 use sea_orm::{ConnectOptions, Database, DbConn, DbErr};
+#[cfg(feature = "cli")]
 use sea_orm_cli::{MigrateSubcommands, run_migrate_generate, run_migrate_init};
 
-use crate::response::{ApiMeta, ApiResponse};
 use super::MigratorTraitSelf;
+use crate::response::{ApiMeta, ApiResponse};
 
 const MIGRATION_DIR: &str = "./";
 const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -58,69 +59,127 @@ where
     let meta = migrator_meta(&migrator);
 
     match command {
-        Some(MigrateSubcommands::Status) => {
-            match migrator.status(db).await {
-                Ok(data) => println!("{}", serde_json::to_string(&ApiResponse::ok(meta, data)).unwrap()),
-                Err(e) => { emit_err::<()>(meta, e); exit(1); }
+        Some(MigrateSubcommands::Status) => match migrator.status(db).await {
+            Ok(data) => println!(
+                "{}",
+                serde_json::to_string(&ApiResponse::ok(meta, data)).unwrap()
+            ),
+            Err(e) => {
+                emit_err::<()>(meta, e);
+                exit(1);
             }
-        }
-        Some(MigrateSubcommands::Up { num }) => {
-            match migrator.up(db, num).await {
-                Ok(data) => println!("{}", serde_json::to_string(&ApiResponse::ok(meta, data)).unwrap()),
-                Err(e) => { emit_err::<()>(meta, e); exit(1); }
+        },
+        Some(MigrateSubcommands::Up { num }) => match migrator.up(db, num).await {
+            Ok(data) => println!(
+                "{}",
+                serde_json::to_string(&ApiResponse::ok(meta, data)).unwrap()
+            ),
+            Err(e) => {
+                emit_err::<()>(meta, e);
+                exit(1);
             }
-        }
-        Some(MigrateSubcommands::Down { num }) => {
-            match migrator.down(db, Some(num)).await {
-                Ok(data) => println!("{}", serde_json::to_string(&ApiResponse::ok(meta, data)).unwrap()),
-                Err(e) => { emit_err::<()>(meta, e); exit(1); }
+        },
+        Some(MigrateSubcommands::Down { num }) => match migrator.down(db, Some(num)).await {
+            Ok(data) => println!(
+                "{}",
+                serde_json::to_string(&ApiResponse::ok(meta, data)).unwrap()
+            ),
+            Err(e) => {
+                emit_err::<()>(meta, e);
+                exit(1);
             }
-        }
-        Some(MigrateSubcommands::Fresh) => {
-            match migrator.fresh(db).await {
-                Ok(data) => println!("{}", serde_json::to_string(&ApiResponse::ok(meta, data)).unwrap()),
-                Err(e) => { emit_err::<()>(meta, e); exit(1); }
+        },
+        Some(MigrateSubcommands::Fresh) => match migrator.fresh(db).await {
+            Ok(data) => println!(
+                "{}",
+                serde_json::to_string(&ApiResponse::ok(meta, data)).unwrap()
+            ),
+            Err(e) => {
+                emit_err::<()>(meta, e);
+                exit(1);
             }
-        }
-        Some(MigrateSubcommands::Refresh) => {
-            match migrator.refresh(db).await {
-                Ok(data) => println!("{}", serde_json::to_string(&ApiResponse::ok(meta, data)).unwrap()),
-                Err(e) => { emit_err::<()>(meta, e); exit(1); }
+        },
+        Some(MigrateSubcommands::Refresh) => match migrator.refresh(db).await {
+            Ok(data) => println!(
+                "{}",
+                serde_json::to_string(&ApiResponse::ok(meta, data)).unwrap()
+            ),
+            Err(e) => {
+                emit_err::<()>(meta, e);
+                exit(1);
             }
-        }
-        Some(MigrateSubcommands::Reset) => {
-            match migrator.reset(db).await {
-                Ok(data) => println!("{}", serde_json::to_string(&ApiResponse::ok(meta, data)).unwrap()),
-                Err(e) => { emit_err::<()>(meta, e); exit(1); }
+        },
+        Some(MigrateSubcommands::Reset) => match migrator.reset(db).await {
+            Ok(data) => println!(
+                "{}",
+                serde_json::to_string(&ApiResponse::ok(meta, data)).unwrap()
+            ),
+            Err(e) => {
+                emit_err::<()>(meta, e);
+                exit(1);
             }
-        }
-        Some(MigrateSubcommands::Init) => {
-            match run_migrate_init(MIGRATION_DIR) {
-                Ok(()) => {
-                    #[derive(serde::Serialize)]
-                    struct InitData { migration_dir: &'static str }
-                    println!("{}", serde_json::to_string(&ApiResponse::ok(meta, InitData { migration_dir: MIGRATION_DIR })).unwrap());
+        },
+        Some(MigrateSubcommands::Init) => match run_migrate_init(MIGRATION_DIR) {
+            Ok(()) => {
+                #[derive(serde::Serialize)]
+                struct InitData {
+                    migration_dir: &'static str,
                 }
-                Err(e) => { emit_err::<()>(meta, e); exit(1); }
+                println!(
+                    "{}",
+                    serde_json::to_string(&ApiResponse::ok(
+                        meta,
+                        InitData {
+                            migration_dir: MIGRATION_DIR
+                        }
+                    ))
+                    .unwrap()
+                );
             }
-        }
-        Some(MigrateSubcommands::Generate { migration_name, universal_time: _, local_time }) => {
-            match run_migrate_generate(MIGRATION_DIR, &migration_name, !local_time) {
-                Ok(()) => {
-                    #[derive(serde::Serialize)]
-                    struct GenData<'a> { migration_name: &'a str, migration_dir: &'static str }
-                    println!("{}", serde_json::to_string(&ApiResponse::ok(meta, GenData { migration_name: &migration_name, migration_dir: MIGRATION_DIR })).unwrap());
+            Err(e) => {
+                emit_err::<()>(meta, e);
+                exit(1);
+            }
+        },
+        Some(MigrateSubcommands::Generate {
+            migration_name,
+            universal_time: _,
+            local_time,
+        }) => match run_migrate_generate(MIGRATION_DIR, &migration_name, !local_time) {
+            Ok(()) => {
+                #[derive(serde::Serialize)]
+                struct GenData<'a> {
+                    migration_name: &'a str,
+                    migration_dir: &'static str,
                 }
-                Err(e) => { emit_err::<()>(meta, e); exit(1); }
+                println!(
+                    "{}",
+                    serde_json::to_string(&ApiResponse::ok(
+                        meta,
+                        GenData {
+                            migration_name: &migration_name,
+                            migration_dir: MIGRATION_DIR
+                        }
+                    ))
+                    .unwrap()
+                );
             }
-        }
+            Err(e) => {
+                emit_err::<()>(meta, e);
+                exit(1);
+            }
+        },
         // No subcommand: apply all pending migrations
-        None => {
-            match migrator.up(db, None).await {
-                Ok(data) => println!("{}", serde_json::to_string(&ApiResponse::ok(meta, data)).unwrap()),
-                Err(e) => { emit_err::<()>(meta, e); exit(1); }
+        None => match migrator.up(db, None).await {
+            Ok(data) => println!(
+                "{}",
+                serde_json::to_string(&ApiResponse::ok(meta, data)).unwrap()
+            ),
+            Err(e) => {
+                emit_err::<()>(meta, e);
+                exit(1);
             }
-        }
+        },
     }
 }
 
@@ -133,7 +192,10 @@ fn migrator_meta<M: MigratorTraitSelf>(migrator: &M) -> ApiMeta {
 }
 
 fn emit_err<T: serde::Serialize>(meta: ApiMeta, error: impl std::fmt::Display) {
-    println!("{}", serde_json::to_string(&ApiResponse::<T>::err(meta, error.to_string())).unwrap());
+    println!(
+        "{}",
+        serde_json::to_string(&ApiResponse::<T>::err(meta, error.to_string())).unwrap()
+    );
 }
 
 #[derive(Parser)]

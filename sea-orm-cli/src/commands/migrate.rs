@@ -43,6 +43,7 @@ pub fn run_migrate_command(
     Ok(())
 }
 
+#[cfg(feature = "cli")]
 fn run_migrate_json(
     command: Option<MigrateSubcommands>,
     migration_dir: &str,

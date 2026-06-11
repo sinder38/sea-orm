@@ -30,6 +30,7 @@ regex = { version = "1", optional = true }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
 sea-orm = { version = "~2.0.0-rc.38", path = "../", features = ["schema-sync",] }
+sea-orm-cli = { version = "~2.0.0-rc.38", path = "../sea-orm-cli", default-features = false, optional = true }
 sea-schema = { version = "0.17.0-rc", default-features = false, features = [
     "discovery",
     "writer",
@@ -46,43 +47,50 @@ name = "entity_first"
 required-features = ["entity-first", "sqlx-sqlite", "runtime-tokio-native-tls"]
 
 [features]
-cli = ["clap", "dotenvy", "chrono", "regex"]
+cli = ["clap", "dotenvy", "chrono", "regex", "sea-orm-cli/cli"]
 default = ["cli"]
 entity-first = ["chrono", "clap", "dotenvy", "regex"]
 entity-registry = ["sea-orm/entity-registry"]
 runtime-async-std = [
     "sea-orm/runtime-async-std",
     "sea-schema/runtime-async-std",
+    "sea-orm-cli?/runtime-async-std",
 ]
 runtime-async-std-native-tls = [
     "sea-orm/runtime-async-std-native-tls",
     "sea-schema/runtime-async-std-native-tls",
+    "sea-orm-cli?/runtime-async-std-native-tls",
 ]
 runtime-async-std-rustls = [
     "sea-orm/runtime-async-std-rustls",
     "sea-schema/runtime-async-std-rustls",
+    "sea-orm-cli?/runtime-async-std-rustls",
 ]
 runtime-tokio = [
     "sea-orm/runtime-tokio",
     "sea-schema/runtime-tokio",
+    "sea-orm-cli?/runtime-tokio",
 ]
 runtime-tokio-native-tls = [
     "sea-orm/runtime-tokio-native-tls",
     "sea-schema/runtime-tokio-native-tls",
+    "sea-orm-cli?/runtime-tokio-native-tls",
 ]
 runtime-tokio-rustls = [
     "sea-orm/runtime-tokio-rustls",
     "sea-schema/runtime-tokio-rustls",
+    "sea-orm-cli?/runtime-tokio-rustls",
 ]
 sqlite-use-returning-for-3_35 = ["sea-orm/sqlite-use-returning-for-3_35"]
 sqlx-all = ["sqlx-mysql", "sqlx-postgres", "sqlx-sqlite"]
 sqlx-dep = []
-sqlx-mysql = ["sqlx-dep", "sea-orm/sqlx-mysql"]
+sqlx-mysql = ["sqlx-dep", "sea-orm/sqlx-mysql", "sea-orm-cli?/sqlx-mysql"]
 sqlx-postgres = [
     "sqlx-dep",
     "sea-orm/sqlx-postgres",
+    "sea-orm-cli?/sqlx-postgres",
 ]
-sqlx-sqlite = ["sqlx-dep", "sea-orm/sqlx-sqlite"]
+sqlx-sqlite = ["sqlx-dep", "sea-orm/sqlx-sqlite", "sea-orm-cli?/sqlx-sqlite"]
 with-bigdecimal = ["sea-orm/with-bigdecimal"]
 with-chrono = ["sea-orm/with-chrono"]
 with-ipnetwork = ["sea-orm/with-ipnetwork"]
